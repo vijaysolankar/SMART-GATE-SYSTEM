@@ -1,0 +1,1735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Gate System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1e40af; /* Deeper blue */
+            --primary-dark: #1e3a8a;
+            --secondary: #3b82f6; /* Brighter blue for accents */
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1f2937;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --bg-gradient: linear-gradient(135deg, #f0f2f5 0%, #e2e8f0 100%);
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif; /* Modern font */
+        }
+        
+        body {
+            background: var(--bg-gradient);
+            color: var(--gray-700);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding-bottom: 40px;
+        }
+        
+        .container {
+            max-width: 1100px; /* Slightly tighter container */
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* --- Animations --- */
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse-warning {
+            0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(245, 158, 11, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Utility for staggering animations */
+        .stagger-1 { animation-delay: 0.1s; }
+        .stagger-2 { animation-delay: 0.2s; }
+        .stagger-3 { animation-delay: 0.3s; }
+        
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 25px 0 40px; /* More padding for modern look */
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            border-radius: 0 0 30px 30px; /* Smooth curve */
+            margin-bottom: -30px; /* Overlap with content beneath */
+            position: relative;
+            z-index: 10;
+        }
+        
+        .campus-name {
+            font-size: 1.25rem;
+            margin-bottom: 8px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            padding: 0 20px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .app-title {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        
+        /* Login & Signup Sections */
+        .login-section {
+            background-color: white;
+            border-radius: 20px; /* Softer corners */
+            padding: 40px;
+            margin: 50px auto 30px; /* Adjust margin for header overlap */
+            max-width: 450px;
+            box-shadow: var(--shadow-xl); /* Deeper shadow */
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: slideUpFade 0.6s ease-out;
+            position: relative;
+            z-index: 20;
+            border-top: 4px solid var(--secondary);
+        }
+        
+        .login-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 30px -5px rgba(0, 0, 0, 0.15);
+        }
+        
+        .login-title {
+            text-align: center;
+            margin-bottom: 25px;
+            color: var(--primary);
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        /* --- Modern Floating Labels --- */
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .floating-label input,
+        .floating-label select,
+        .floating-label textarea {
+            width: 100%;
+            padding: 14px 16px; /* Larger padding */
+            border: 2px solid var(--gray-200);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background: var(--gray-50);
+            color: var(--gray-700);
+            font-weight: 500;
+        }
+
+        .floating-label textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Hide placeholder so label can sit inside */
+        .floating-label input::placeholder,
+        .floating-label textarea::placeholder {
+            color: transparent;
+        }
+
+        .floating-label label {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: transparent;
+            padding: 0 4px;
+            color: var(--gray-500);
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            pointer-events: none; /* Let clicks pass through to input */
+        }
+
+        .floating-label textarea + label {
+            top: 16px;
+            transform: none;
+        }
+
+        /* Move label up on focus or when it has content (handled by JS adding 'has-content' class, or using placeholder trick) */
+        .floating-label input:focus,
+        .floating-label select:focus,
+        .floating-label textarea:focus {
+            outline: none;
+            border-color: var(--secondary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .floating-label input:focus + label,
+        .floating-label input:not(:placeholder-shown) + label,
+        .floating-label select:focus + label,
+        /* Select always needs label up if it has a value selected */
+        .floating-label select:valid + label, 
+        .floating-label textarea:focus + label,
+        .floating-label textarea:not(:placeholder-shown) + label {
+            top: 0;
+            transform: translateY(-50%) scale(0.85);
+            left: 12px;
+            color: var(--secondary);
+            font-weight: 600;
+            background-color: white; /* Cover the border line */
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .btn:hover {
+            background-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn:active {
+            transform: translateY(0) scale(0.98); /* Tactile click feedback */
+        }
+        
+        .btn-success { background-color: var(--success); }
+        .btn-success:hover { background-color: #059669; }
+        .btn-danger { background-color: var(--danger); }
+        .btn-danger:hover { background-color: #dc2626; }
+        .btn-warning { background-color: var(--warning); }
+        .btn-warning:hover { background-color: #d97706; }
+        .btn-accent { background-color: #8b5cf6; }
+        .btn-accent:hover { background-color: #7c3aed; }
+        
+        .login-options {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            background: var(--gray-100);
+            padding: 5px;
+            border-radius: 12px;
+        }
+        
+        .login-option {
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+            flex: 1;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--gray-600);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .login-option i { font-size: 1.2rem; }
+        
+        .login-option:hover { background-color: var(--gray-200); color: var(--primary); }
+        
+        .login-option.active {
+            background-color: white;
+            color: var(--secondary);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        /* Dashboard Structure */
+        .dashboard {
+            display: none;
+            margin-top: 40px; /* More space from header overlap */
+        }
+        
+        /* Animation wrapper for dashboard contents */
+        .dashboard-content-wrapper > * {
+            animation: slideUpFade 0.6s ease-out backwards;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            background: white;
+            padding: 20px 25px;
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+            border-left: 5px solid var(--secondary);
+        }
+        
+        .dashboard-title {
+            color: var(--dark);
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1rem;
+            font-weight: 500;
+            background: var(--gray-50);
+            padding: 6px 6px 6px 15px;
+            border-radius: 30px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .user-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .logout-btn {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            border-radius: 20px;
+        }
+        
+        /* Cards & Stats */
+        .card {
+            background-color: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+            border: 1px solid var(--gray-100);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--gray-100);
+        }
+        
+        .card-title {
+            color: var(--dark);
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate; /* Needed for border-radius on rows */
+            border-spacing: 0 8px; /* Spacing between rows */
+            font-size: 0.95rem;
+        }
+        
+        th {
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--gray-500);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+        }
+        
+        td {
+            padding: 15px;
+            background: white;
+            border-top: 1px solid var(--gray-100);
+            border-bottom: 1px solid var(--gray-100);
+            color: var(--gray-700);
+        }
+
+        tr td:first-child { border-left: 1px solid var(--gray-100); border-top-left-radius: 10px; border-bottom-left-radius: 10px; }
+        tr td:last-child { border-right: 1px solid var(--gray-100); border-top-right-radius: 10px; border-bottom-right-radius: 10px; }
+        
+        tr:hover td { 
+            background-color: var(--gray-50); 
+            transform: scale(1.01);
+            transition: all 0.2s;
+        }
+        
+        /* Status Badges with Animation */
+        .status {
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-align: center;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .status::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        
+        .status-pending { background-color: #fff7ed; color: var(--warning); }
+        .status-pending::before { background-color: var(--warning); animation: pulse-warning 2s infinite;}
+        
+        .status-approved { background-color: #ecfdf5; color: var(--success); }
+        .status-approved::before { background-color: var(--success); }
+        
+        .status-rejected { background-color: #fef2f2; color: var(--danger); }
+        .status-rejected::before { background-color: var(--danger); }
+        
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .action-btn {
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            border: none;
+            transition: all 0.2s;
+            display: inline-flex; align-items: center; gap: 6px;
+            font-weight: 600;
+        }
+        
+        .action-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+        
+        /* Forms & Grid */
+        .gatepass-form { max-width: 900px; margin: 0 auto; }
+        .form-row { display: flex; gap: 20px; margin-bottom: 5px; }
+        .form-col { flex: 1; }
+        
+        /* Pass Preview */
+        .gatepass-preview {
+            background-color: white;
+            border: 2px dashed var(--gray-300);
+            padding: 40px;
+            margin-top: 30px;
+            max-width: 750px;
+            margin-left: auto;
+            margin-right: auto;
+            border-radius: 20px;
+            box-shadow: var(--shadow-lg);
+            animation: slideUpFade 0.5s ease-out;
+        }
+        
+        .gatepass-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 20px;
+        }
+        
+        .gatepass-title {
+            font-size: 1.6rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+            color: var(--primary);
+            text-transform: uppercase;
+        }
+        
+        .gatepass-table td {
+            padding: 12px;
+            border: 1px solid var(--gray-200);
+            font-size: 1rem;
+        }
+        
+        .gatepass-note {
+            background: #fef2f2;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid var(--danger);
+            margin-top: 25px;
+            color: var(--danger);
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex; align-items: center; gap: 10px;
+        }
+        
+        .alert {
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            box-shadow: var(--shadow-sm);
+            animation: slideUpFade 0.4s ease-out;
+        }
+        .alert i { font-size: 1.2rem; }
+        .alert-success { background-color: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+        .alert-danger { background-color: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+        
+        .hidden { display: none !important; }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+            border: 1px solid var(--gray-100);
+            display: flex; flex-direction: column; justify-content: center;
+        }
+        
+        .stat-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); border-color: var(--secondary); }
+        
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            color: var(--gray-500);
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .pending { color: var(--warning); }
+        .approved { color: var(--success); }
+        .rejected { color: var(--danger); }
+        .total { color: var(--primary); }
+        
+        .signup-link {
+            text-align: center;
+            margin-top: 20px;
+            color: var(--gray-600);
+            font-size: 0.95rem;
+        }
+        
+        .signup-link a {
+            color: var(--secondary);
+            text-decoration: none;
+            font-weight: 700;
+            transition: color 0.2s;
+        }
+        
+        .signup-link a:hover { color: var(--primary-dark); text-decoration: underline; }
+        
+        .loader {
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @media (max-width: 768px) {
+            .form-row { flex-direction: column; gap: 0; }
+            .dashboard-header { flex-direction: column; gap: 20px; align-items: flex-start; }
+            .user-info { width: 100%; justify-content: space-between; }
+            .card-header { flex-direction: column; align-items: flex-start; gap: 15px; }
+            .card-actions { width: 100%; }
+            .card-actions .btn { flex: 1; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1 class="campus-name">FABTECH TECHNICAL CAMPUS<br>COLLEGE OF ENGINEERING AND RESEARCH, SANGOLA</h1>
+            <p class="app-title">Smart Gate Pass System</p>
+        </div>
+    </header>
+    
+    <div class="container">
+        <section id="login-section" class="login-section">
+            <h2 class="login-title">Welcome Back</h2>
+            
+            <div class="login-options">
+                <div class="login-option active" data-role="student">
+                    <i class="fas fa-user-graduate"></i> Student
+                </div>
+                <div class="login-option" data-role="authority">
+                    <i class="fas fa-chalkboard-teacher"></i> Faculty
+                </div>
+                <div class="login-option" data-role="security">
+                    <i class="fas fa-shield-alt"></i> Security
+                </div>
+            </div>
+            
+            <form id="login-form">
+                <div class="form-group floating-label">
+                    <input type="text" id="username" placeholder=" " required>
+                    <label for="username">Username</label>
+                </div>
+                
+                <div class="form-group floating-label">
+                    <input type="password" id="password" placeholder=" " required>
+                    <label for="password">Password</label>
+                </div>
+                
+                <button type="submit" class="btn" style="width: 100%;">
+                    Login <i class="fas fa-arrow-right"></i>
+                </button>
+            </form>
+            
+            <div class="signup-link">
+                New here? <a href="#" id="show-signup">Create an account</a>
+            </div>
+        </section>
+        
+        <section id="signup-section" class="login-section hidden">
+            <h2 class="login-title">Create Account</h2>
+            
+            <form id="signup-form">
+                <div class="form-group floating-label">
+                    <input type="text" id="signup-username" placeholder=" " required>
+                    <label for="signup-username">Choose Username</label>
+                </div>
+                
+                <div class="form-group floating-label">
+                    <input type="email" id="signup-email" placeholder=" " required>
+                    <label for="signup-email">Email Address</label>
+                </div>
+                
+                <div class="form-group floating-label">
+                    <input type="password" id="signup-password" placeholder=" " required>
+                    <label for="signup-password">Password</label>
+                </div>
+                
+                <div class="form-group floating-label">
+                    <select id="signup-role" required>
+                        <option value="" disabled selected></option> <option value="student">Student</option>
+                        <option value="authority">Faculty / Authority</option>
+                        <option value="security">Security Personnel</option>
+                    </select>
+                    <label for="signup-role">Account Type</label>
+                </div>
+                
+                <button type="submit" class="btn" style="width: 100%;">
+                    Sign Up <i class="fas fa-user-plus"></i>
+                </button>
+            </form>
+            
+            <div class="signup-link">
+                Already have an account? <a href="#" id="show-login">Login here</a>
+            </div>
+        </section>
+        
+        <section id="student-dashboard" class="dashboard">
+            <div class="dashboard-content-wrapper">
+                <div class="dashboard-header stagger-1">
+                    <h2 class="dashboard-title">Student Dashboard</h2>
+                    <div class="user-info">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div class="user-avatar">S</div>
+                            <span id="student-username">Student</span>
+                        </div>
+                        <button class="btn logout-btn" id="student-logout">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="stats-container stagger-2">
+                    <div class="stat-card">
+                        <div class="stat-value total" id="total-passes">0</div>
+                        <div class="stat-label">Total Passes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value approved" id="approved-passes">0</div>
+                        <div class="stat-label">Approved</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value pending" id="pending-passes">0</div>
+                        <div class="stat-label">Pending</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value rejected" id="rejected-passes">0</div>
+                        <div class="stat-label">Rejected</div>
+                    </div>
+                </div>
+                
+                <div class="card stagger-3">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-file-signature" style="margin-right: 10px; color: var(--secondary);"></i> Apply for Gate Pass</h3>
+                        <div class="card-actions">
+                            <button class="btn btn-accent" id="quick-pass-btn">
+                                <i class="fas fa-bolt"></i> Quick Pass (3 Hrs)
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <form id="gatepass-form" class="gatepass-form">
+                        <div class="form-row">
+                            <div class="form-col">
+                                <div class="form-group floating-label">
+                                    <input type="text" id="student-name" placeholder=" " required>
+                                    <label for="student-name">Full Name</label>
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <div class="form-group floating-label">
+                                    <input type="text" id="student-roll" placeholder=" " required>
+                                    <label for="student-roll">Roll Number</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-col">
+                                <div class="form-group floating-label">
+                                    <select id="student-department" required>
+                                        <option value="" disabled selected></option>
+                                        <option value="Computer Engineering">Computer Engineering</option>
+                                        <option value="Mechanical Engineering">Mechanical Engineering</option>
+                                        <option value="Civil Engineering">Civil Engineering</option>
+                                        <option value="Electrical Engineering">Electrical Engineering</option>
+                                        <option value="Electronics Engineering">Electronics Engineering</option>
+                                    </select>
+                                    <label for="student-department">Department</label>
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <div class="form-group floating-label">
+                                    <input type="text" id="student-division" placeholder=" " required>
+                                    <label for="student-division">Division</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-col">
+                                <div class="form-group floating-label">
+                                    <input type="tel" id="student-contact" placeholder=" " required>
+                                    <label for="student-contact">Contact Number</label>
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <div class="form-group floating-label">
+                                    <input type="text" id="student-room" placeholder=" " required>
+                                    <label for="student-room">Room Number</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-col">
+                                <div class="form-group floating-label">
+                                    <input type="datetime-local" id="out-time" required>
+                                    <label for="out-time">Departure Time</label>
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <div class="form-group floating-label">
+                                    <input type="datetime-local" id="in-time" required>
+                                    <label for="in-time">Expected Return Time</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group floating-label">
+                            <textarea id="gatepass-reason" placeholder=" " required></textarea>
+                            <label for="gatepass-reason">Reason for Request</label>
+                        </div>
+                        
+                        <button type="submit" class="btn" style="width: 100%; padding: 15px;">
+                            Generate Pass Request <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </form>
+                    
+                    <div id="gatepass-preview" class="gatepass-preview hidden">
+                        <div class="gatepass-header">
+                            <div class="gatepass-title">FABTECH TECHNICAL CAMPUS</div>
+                            <div class="gatepass-subtitle">COLLEGE OF ENGINEERING AND RESEARCH, SANGOLA</div>
+                            <div style="font-weight: 700; letter-spacing: 1px;">LOCAL / HOME GATE PASS</div>
+                        </div>
+                        
+                        <div class="gatepass-info">
+                            <table class="gatepass-table">
+                                <tr>
+                                    <td><strong>Date:</strong> <span id="preview-date"></span></td>
+                                    <td><strong>Pass No:</strong> <span id="preview-passno" style="color: var(--primary); font-weight: 700;"></span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Name:</strong> <span id="preview-name"></span></td>
+                                    <td><strong>Dept:</strong> <span id="preview-dept"></span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Class:</strong> <span id="preview-class"></span></td>
+                                    <td><strong>Div:</strong> <span id="preview-div"></span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Roll No:</strong> <span id="preview-roll"></span></td>
+                                    <td><strong>Room No:</strong> <span id="preview-room"></span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Departure:</strong> <span id="preview-outtime"></span></td>
+                                    <td><strong>Return:</strong> <span id="preview-intime"></span></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2"><strong>Reason:</strong> <span id="preview-reason"></span></td>
+                                </tr>
+                            </table>
+                            
+                            <div class="form-row" style="margin-top: 30px; gap: 40px;">
+                                <div class="form-col">
+                                    <div class="form-group">
+                                        <label style="text-align: center; display: block; color: var(--gray-500);">Student Signature</label>
+                                        <div style="border-bottom: 2px solid var(--gray-300); padding: 25px 0;"></div>
+                                    </div>
+                                </div>
+                                <div class="form-col">
+                                    <div class="form-group">
+                                        <label style="text-align: center; display: block; color: var(--gray-500);">Authority Signature</label>
+                                        <div style="border-bottom: 2px solid var(--gray-300); padding: 25px 0;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="gatepass-note">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p><strong>NOTE:</strong> Student entry into the campus after 10:30 PM is strictly prohibited.</p>
+                        </div>
+                        
+                        <div style="text-align: center; margin-top: 30px; display: flex; justify-content: center; gap: 15px;">
+                            <button class="btn btn-danger" id="edit-gatepass">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn btn-success" id="confirm-gatepass">
+                                <i class="fas fa-check-circle"></i> Confirm & Submit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card stagger-3">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-history" style="margin-right: 10px; color: var(--secondary);"></i> My History</h3>
+                        <div class="card-actions">
+                            <button class="btn btn-accent" id="refresh-history">
+                                <i class="fas fa-sync-alt spin-on-hover"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table id="student-history">
+                            <thead>
+                                <tr>
+                                    <th>Pass No</th>
+                                    <th>Date Submitted</th>
+                                    <th>Departure</th>
+                                    <th>Return</th>
+                                    <th>Reason</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="authority-dashboard" class="dashboard">
+             <div class="dashboard-content-wrapper">
+                <div class="dashboard-header stagger-1">
+                    <h2 class="dashboard-title">Authority Dashboard</h2>
+                    <div class="user-info">
+                         <div style="display: flex; align-items: center; gap: 10px;">
+                            <div class="user-avatar" style="background: var(--accent);">A</div>
+                            <span id="authority-username">Authority</span>
+                        </div>
+                        <button class="btn logout-btn" id="authority-logout">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="stats-container stagger-2">
+                    <div class="stat-card">
+                        <div class="stat-value total" id="authority-total">0</div>
+                        <div class="stat-label">Total Requests</div>
+                    </div>
+                    <div class="stat-card" style="border-color: var(--warning);">
+                        <div class="stat-value pending" id="authority-pending">0</div>
+                        <div class="stat-label">Pending</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value approved" id="authority-approved">0</div>
+                        <div class="stat-label">Approved</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value rejected" id="authority-rejected">0</div>
+                        <div class="stat-label">Rejected</div>
+                    </div>
+                </div>
+                
+                <div class="card stagger-3">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-hourglass-half" style="margin-right: 10px; color: var(--warning);"></i> Pending Requests</h3>
+                        <div class="card-actions">
+                            <button class="btn btn-accent" id="refresh-pending">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table id="pending-requests">
+                            <thead>
+                                <tr>
+                                    <th>Pass No</th>
+                                    <th>Student Name</th>
+                                    <th>Dept</th>
+                                    <th>Departure</th>
+                                    <th>Return</th>
+                                    <th>Reason</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="card stagger-3">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-archive" style="margin-right: 10px; color: var(--secondary);"></i> Request History</h3>
+                        <div class="card-actions">
+                            <button class="btn btn-accent" id="refresh-processed">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table id="processed-requests">
+                            <thead>
+                                <tr>
+                                    <th>Pass No</th>
+                                    <th>Student Name</th>
+                                    <th>Dept</th>
+                                    <th>Departure</th>
+                                    <th>Status</th>
+                                    <th>Action Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="security-dashboard" class="dashboard">
+             <div class="dashboard-content-wrapper">
+                <div class="dashboard-header stagger-1">
+                    <h2 class="dashboard-title">Security Dashboard</h2>
+                    <div class="user-info">
+                         <div style="display: flex; align-items: center; gap: 10px;">
+                            <div class="user-avatar" style="background: var(--dark);">S</div>
+                            <span id="security-username">Security</span>
+                        </div>
+                        <button class="btn logout-btn" id="security-logout">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="stats-container stagger-2">
+                    <div class="stat-card">
+                        <div class="stat-value total" id="security-total">0</div>
+                        <div class="stat-label">Today's Passes</div>
+                    </div>
+                    <div class="stat-card" style="border-color: var(--secondary);">
+                        <div class="stat-value approved" id="security-out">0</div>
+                        <div class="stat-label">Currently Out</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value pending" style="color: var(--dark);" id="security-returned">0</div>
+                        <div class="stat-label">Returned</div>
+                    </div>
+                    <div class="stat-card" style="border-color: var(--danger);">
+                        <div class="stat-value rejected" id="security-overdue">0</div>
+                        <div class="stat-label">Overdue</div>
+                    </div>
+                </div>
+                
+                <div class="card stagger-3">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-walking" style="margin-right: 10px; color: var(--secondary);"></i> Ready for Departure (Today)</h3>
+                        <div class="card-actions">
+                            <button class="btn btn-accent" id="refresh-approved">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table id="approved-passes">
+                            <thead>
+                                <tr>
+                                    <th>Pass No</th>
+                                    <th>Student Name</th>
+                                    <th>Dept</th>
+                                    <th>Roll No</th>
+                                    <th>Departure</th>
+                                    <th>Return</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="card stagger-3">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-clipboard-list" style="margin-right: 10px; color: var(--dark);"></i> Entry/Exit Log</h3>
+                        <div class="card-actions">
+                            <button class="btn btn-accent" id="refresh-log">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table id="entry-exit-log">
+                            <thead>
+                                <tr>
+                                    <th>Pass No</th>
+                                    <th>Student Name</th>
+                                    <th>Departure</th>
+                                    <th>Return</th>
+                                    <th>Time Out</th>
+                                    <th>Time In</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // NOTE: YOU MUST HAVE THE BACKEND SERVER RUNNING ON PORT 3000 FOR THIS TO WORK.
+        const API_URL = 'http://localhost:3000/api';
+
+        let currentUser = null;
+        let currentRole = null;
+
+        // DOM Elements
+        const loginSection = document.getElementById('login-section');
+        const signupSection = document.getElementById('signup-section');
+        const studentDashboard = document.getElementById('student-dashboard');
+        const authorityDashboard = document.getElementById('authority-dashboard');
+        const securityDashboard = document.getElementById('security-dashboard');
+        const loginForm = document.getElementById('login-form');
+        const signupForm = document.getElementById('signup-form');
+        const loginOptions = document.querySelectorAll('.login-option');
+        const gatepassForm = document.getElementById('gatepass-form');
+        const gatepassPreview = document.getElementById('gatepass-preview');
+        const studentHistoryTable = document.getElementById('student-history').querySelector('tbody');
+        const pendingRequestsTable = document.getElementById('pending-requests').querySelector('tbody');
+        const processedRequestsTable = document.getElementById('processed-requests').querySelector('tbody');
+        const approvedPassesTable = document.getElementById('approved-passes').querySelector('tbody');
+        const entryExitLogTable = document.getElementById('entry-exit-log').querySelector('tbody');
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Login option selection
+            loginOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    loginOptions.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Login form submission
+            loginForm.addEventListener('submit', handleLogin);
+
+            // Signup form submission
+            signupForm.addEventListener('submit', handleSignup);
+
+            // Gate pass form submission
+            gatepassForm.addEventListener('submit', previewGatePass);
+
+            // Confirm gate pass
+            document.getElementById('confirm-gatepass').addEventListener('click', submitGatePass);
+
+            // Edit gate pass
+            document.getElementById('edit-gatepass').addEventListener('click', function() {
+                // Simple animation for switching back
+                gatepassPreview.style.opacity = '0';
+                setTimeout(() => {
+                    gatepassPreview.classList.add('hidden');
+                    gatepassForm.classList.remove('hidden');
+                    gatepassPreview.style.opacity = '1';
+                    gatepassForm.style.animation = 'slideUpFade 0.5s ease-out';
+                }, 300);
+            });
+
+            // Logout buttons
+            document.getElementById('student-logout').addEventListener('click', logout);
+            document.getElementById('authority-logout').addEventListener('click', logout);
+            document.getElementById('security-logout').addEventListener('click', logout);
+
+            // Show signup form
+            document.getElementById('show-signup').addEventListener('click', function(e) {
+                e.preventDefault();
+                toggleForms(loginSection, signupSection);
+            });
+
+            // Show login form
+            document.getElementById('show-login').addEventListener('click', function(e) {
+                e.preventDefault();
+                toggleForms(signupSection, loginSection);
+            });
+
+            // Quick pass button
+            document.getElementById('quick-pass-btn').addEventListener('click', function() {
+                const now = new Date();
+                const offset = now.getTimezoneOffset() * 60000;
+                const outTime = new Date(now.getTime() + 30 * 60000 - offset); // 30 mins from now
+                const inTime = new Date(now.getTime() + 3 * 60 * 60000 - offset); // 3 hours from now
+
+                const outInput = document.getElementById('out-time');
+                const inInput = document.getElementById('in-time');
+                const reasonInput = document.getElementById('gatepass-reason');
+
+                outInput.value = outTime.toISOString().slice(0, 16);
+                inInput.value = inTime.toISOString().slice(0, 16);
+                reasonInput.value = "Quick pass - urgent requirement";
+                
+                // Trigger focus events for floating labels to update
+                outInput.dispatchEvent(new Event('focus'));
+                inInput.dispatchEvent(new Event('focus'));
+                reasonInput.dispatchEvent(new Event('focus'));
+
+                gatepassForm.scrollIntoView({ behavior: 'smooth' });
+            });
+
+            // Refresh buttons with spin animation on icon
+            setupRefreshButton('refresh-history', loadStudentDashboard);
+            setupRefreshButton('refresh-pending', loadAuthorityDashboard);
+            setupRefreshButton('refresh-processed', loadAuthorityDashboard);
+            setupRefreshButton('refresh-approved', loadSecurityDashboard);
+            setupRefreshButton('refresh-log', loadSecurityDashboard);
+        });
+        
+        function setupRefreshButton(id, loadFunction) {
+             const btn = document.getElementById(id);
+             btn.addEventListener('click', async function() {
+                 const icon = this.querySelector('i');
+                 icon.classList.add('fa-spin');
+                 await loadFunction();
+                 setTimeout(() => icon.classList.remove('fa-spin'), 500);
+             });
+        }
+
+        function toggleForms(hide, show) {
+            hide.style.opacity = '0';
+            hide.style.transform = 'translateY(-20px)';
+            setTimeout(() => {
+                hide.classList.add('hidden');
+                show.classList.remove('hidden');
+                // Trigger reflow for animation
+                void show.offsetWidth;
+                show.style.opacity = '1';
+                show.style.transform = 'translateY(0)';
+            }, 300);
+        }
+
+        // Functions
+        async function handleLogin(e) {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const selectedRole = document.querySelector('.login-option.active').dataset.role;
+
+            const submitBtn = loginForm.querySelector('button');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<div class="loader"></div>';
+            submitBtn.disabled = true;
+
+            try {
+                // Simulate network delay for animation
+                await new Promise(r => setTimeout(r, 800));
+
+                const response = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password, role: selectedRole })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    currentUser = data.user;
+                    currentRole = selectedRole;
+
+                    loginSection.style.opacity = '0';
+                    setTimeout(() => {
+                         loginSection.style.display = 'none';
+                         signupSection.style.display = 'none';
+                         
+                         switch(selectedRole) {
+                            case 'student':
+                                document.getElementById('student-username').textContent = currentUser.username;
+                                studentDashboard.style.display = 'block';
+                                loadStudentDashboard();
+                                break;
+                            case 'authority':
+                                document.getElementById('authority-username').textContent = currentUser.username;
+                                authorityDashboard.style.display = 'block';
+                                loadAuthorityDashboard();
+                                break;
+                            case 'security':
+                                document.getElementById('security-username').textContent = currentUser.username;
+                                securityDashboard.style.display = 'block';
+                                loadSecurityDashboard();
+                                break;
+                        }
+                    }, 300);
+
+                } else {
+                    showAlert(data.message, 'danger');
+                }
+            } catch (error) {
+                console.error("Login Error:", error);
+                showAlert("Cannot connect to server. Check backend.", 'danger');
+            }
+
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
+
+        async function handleSignup(e) {
+            e.preventDefault();
+
+            const username = document.getElementById('signup-username').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const role = document.getElementById('signup-role').value;
+
+            const submitBtn = signupForm.querySelector('button');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<div class="loader"></div>';
+            submitBtn.disabled = true;
+
+            try {
+                await new Promise(r => setTimeout(r, 800));
+                const response = await fetch(`${API_URL}/signup`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password, role })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showAlert('Account created! Redirecting to login...', 'success');
+                    setTimeout(() => {
+                        toggleForms(signupSection, loginSection);
+                        signupForm.reset();
+                    }, 1500);
+                } else {
+                    showAlert(data.message, 'danger');
+                }
+            } catch (error) {
+                console.error("Signup Error:", error);
+                showAlert("Cannot connect to server.", 'danger');
+            }
+
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
+
+        function logout() {
+            const currentDashboard = document.querySelector('.dashboard[style*="display: block"]');
+            if(currentDashboard) {
+                 currentDashboard.style.opacity = '0';
+                 currentDashboard.style.transform = 'translateY(20px)';
+            }
+
+            setTimeout(() => {
+                currentUser = null;
+                currentRole = null;
+                studentDashboard.style.display = 'none';
+                authorityDashboard.style.display = 'none';
+                securityDashboard.style.display = 'none';
+
+                loginSection.style.display = 'block';
+                // Trigger reflow
+                void loginSection.offsetWidth;
+                loginSection.style.opacity = '1';
+
+                document.getElementById('username').value = '';
+                document.getElementById('password').value = '';
+            }, 300);
+        }
+
+        function previewGatePass(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('student-name').value;
+            const roll = document.getElementById('student-roll').value;
+            const dept = document.getElementById('student-department').value;
+            const division = document.getElementById('student-division').value;
+            const contact = document.getElementById('student-contact').value;
+            const room = document.getElementById('student-room').value;
+            const outTime = document.getElementById('out-time').value;
+            const inTime = document.getElementById('in-time').value;
+            const reason = document.getElementById('gatepass-reason').value;
+            
+            const now = new Date();
+            const formattedDate = now.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+            const formattedOutTime = new Date(outTime).toLocaleString('en-IN', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' });
+            const formattedInTime = new Date(inTime).toLocaleString('en-IN', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' });
+            
+            const passNo = `GP${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`;
+
+            document.getElementById('preview-date').textContent = formattedDate;
+            document.getElementById('preview-passno').textContent = passNo;
+            document.getElementById('preview-name').textContent = name;
+            document.getElementById('preview-dept').textContent = dept;
+            document.getElementById('preview-class').textContent = dept;
+            document.getElementById('preview-div').textContent = division;
+            document.getElementById('preview-roll').textContent = roll;
+            document.getElementById('preview-room').textContent = room;
+            document.getElementById('preview-outtime').textContent = formattedOutTime;
+            document.getElementById('preview-intime').textContent = formattedInTime;
+            document.getElementById('preview-reason').textContent = reason;
+            
+            gatepassForm.classList.add('hidden');
+            gatepassPreview.classList.remove('hidden');
+        }
+
+        async function submitGatePass() {
+            const confirmBtn = document.getElementById('confirm-gatepass');
+            const originalText = confirmBtn.innerHTML;
+            confirmBtn.innerHTML = '<div class="loader"></div>';
+            confirmBtn.disabled = true;
+
+            const name = document.getElementById('student-name').value;
+            const roll = document.getElementById('student-roll').value;
+            const dept = document.getElementById('student-department').value;
+            const division = document.getElementById('student-division').value;
+            const contact = document.getElementById('student-contact').value;
+            const room = document.getElementById('student-room').value;
+            const outTime = document.getElementById('out-time').value;
+            const inTime = document.getElementById('in-time').value;
+            const reason = document.getElementById('gatepass-reason').value;
+            
+            const now = new Date();
+            const passNo = `GP${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`;
+
+            const newPass = {
+                passNo: passNo,
+                studentName: name,
+                rollNo: roll,
+                department: dept,
+                division: division,
+                contact: contact,
+                roomNo: room,
+                outTime: outTime,
+                inTime: inTime,
+                reason: reason,
+                status: "pending",
+                appliedDate: new Date().toISOString().split('T')[0],
+                approvedDate: "",
+                actualOut: "",
+                actualIn: "",
+                studentUsername: currentUser.username
+            };
+
+            try {
+                await new Promise(r => setTimeout(r, 1000)); // Fake delay
+                await fetch(`${API_URL}/gatepasses`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newPass)
+                });
+
+                gatepassForm.reset();
+                gatepassPreview.classList.add('hidden');
+                gatepassForm.classList.remove('hidden');
+                // Reset floating labels
+                document.querySelectorAll('.floating-label input, .floating-label textarea').forEach(el => el.blur());
+
+
+                showAlert('Gate pass submitted successfully! It is now pending approval.', 'success');
+                loadStudentDashboard();
+            } catch (error) {
+                console.error("Submit Error:", error);
+                showAlert("Failed to submit gate pass.", 'danger');
+            }
+             confirmBtn.innerHTML = originalText;
+             confirmBtn.disabled = false;
+        }
+
+        // Helper for cleaner date formatting
+        function formatDateTime(dateString) {
+             const options = { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' };
+             return new Date(dateString).toLocaleString('en-IN', options);
+        }
+        
+        function createStatusBadge(status) {
+             return `<span class="status status-${status}">${status.charAt(0).toUpperCase() + status.slice(1)}</span>`;
+        }
+
+        async function loadStudentDashboard() {
+            try {
+                const response = await fetch(`${API_URL}/gatepasses`);
+                const gatePasses = await response.json();
+
+                const studentPasses = gatePasses.filter(pass => pass.studentUsername === currentUser.username);
+
+                // Animate numbers
+                animateValue(document.getElementById('total-passes'), studentPasses.length);
+                animateValue(document.getElementById('approved-passes'), studentPasses.filter(p => p.status === 'approved').length);
+                animateValue(document.getElementById('pending-passes'), studentPasses.filter(p => p.status === 'pending').length);
+                animateValue(document.getElementById('rejected-passes'), studentPasses.filter(p => p.status === 'rejected').length);
+
+                studentHistoryTable.innerHTML = '';
+                if(studentPasses.length === 0) {
+                     studentHistoryTable.innerHTML = '<tr><td colspan="6" style="text-align:center; color: var(--gray-500);">No history found.</td></tr>';
+                }
+
+                studentPasses.forEach((pass, index) => {
+                    const row = document.createElement('tr');
+                    row.style.animation = `slideUpFade 0.3s ease-out ${index * 0.05}s backwards`;
+                    
+                    row.innerHTML = `
+                        <td style="font-weight: 600;">${pass.passNo}</td>
+                        <td>${pass.appliedDate}</td>
+                        <td>${formatDateTime(pass.outTime)}</td>
+                        <td>${formatDateTime(pass.inTime)}</td>
+                        <td>${pass.reason}</td>
+                        <td>${createStatusBadge(pass.status)}</td>
+                    `;
+                    studentHistoryTable.appendChild(row);
+                });
+            } catch (error) {
+                console.error("Load Error:", error);
+            }
+        }
+        
+        // Number animation helper
+        function animateValue(obj, end) {
+            let startTimestamp = null;
+            const duration = 1000;
+            const start = parseInt(obj.innerHTML);
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                obj.innerHTML = Math.floor(progress * (end - start) + start);
+                if (progress < 1) {
+                window.requestAnimationFrame(step);
+                } else {
+                     obj.innerHTML = end;
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        async function loadAuthorityDashboard() {
+            try {
+                const response = await fetch(`${API_URL}/gatepasses`);
+                const gatePasses = await response.json();
+
+                const pendingRequests = gatePasses.filter(pass => pass.status === "pending");
+                const processedRequests = gatePasses.filter(pass => pass.status !== "pending");
+
+                animateValue(document.getElementById('authority-total'), gatePasses.length);
+                animateValue(document.getElementById('authority-pending'), pendingRequests.length);
+                animateValue(document.getElementById('authority-approved'), gatePasses.filter(p => p.status === 'approved').length);
+                animateValue(document.getElementById('authority-rejected'), gatePasses.filter(p => p.status === 'rejected').length);
+
+                pendingRequestsTable.innerHTML = '';
+                 if(pendingRequests.length === 0) {
+                     pendingRequestsTable.innerHTML = '<tr><td colspan="7" style="text-align:center; color: var(--gray-500);">No pending requests.</td></tr>';
+                }
+                
+                pendingRequests.forEach((pass, index) => {
+                    const row = document.createElement('tr');
+                    row.style.animation = `slideUpFade 0.3s ease-out ${index * 0.05}s backwards`;
+                    row.innerHTML = `
+                        <td style="font-weight: 600;">${pass.passNo}</td>
+                        <td>${pass.studentName}</td>
+                        <td>${pass.department}</td>
+                        <td>${formatDateTime(pass.outTime)}</td>
+                        <td>${formatDateTime(pass.inTime)}</td>
+                        <td>${pass.reason}</td>
+                        <td class="action-buttons">
+                            <button class="action-btn btn-success" onclick="approveGatePass('${pass._id}', this)">
+                                <i class="fas fa-check"></i> Approve
+                            </button>
+                            <button class="action-btn btn-danger" onclick="rejectGatePass('${pass._id}', this)">
+                                <i class="fas fa-times"></i> Reject
+                            </button>
+                        </td>
+                    `;
+                    pendingRequestsTable.appendChild(row);
+                });
+
+                processedRequestsTable.innerHTML = '';
+                 if(processedRequests.length === 0) {
+                     processedRequestsTable.innerHTML = '<tr><td colspan="6" style="text-align:center; color: var(--gray-500);">No processed history.</td></tr>';
+                }
+                processedRequests.forEach((pass, index) => {
+                    const row = document.createElement('tr');
+                    row.style.animation = `slideUpFade 0.3s ease-out ${index * 0.05}s backwards`;
+                    row.innerHTML = `
+                        <td style="font-weight: 600;">${pass.passNo}</td>
+                        <td>${pass.studentName}</td>
+                        <td>${pass.department}</td>
+                        <td>${formatDateTime(pass.outTime)}</td>
+                        <td>${createStatusBadge(pass.status)}</td>
+                        <td>${pass.approvedDate || '-'}</td>
+                    `;
+                    processedRequestsTable.appendChild(row);
+                });
+            } catch (error) {
+                console.error("Load Auth Error:", error);
+            }
+        }
+
+        async function loadSecurityDashboard() {
+            try {
+                const response = await fetch(`${API_URL}/gatepasses`);
+                const gatePasses = await response.json();
+
+                const today = new Date().toISOString().split('T')[0];
+                // Filter for approved passes where departure is today
+                const approvedPasses = gatePasses.filter(pass => pass.status === "approved" && pass.outTime && pass.outTime.startsWith(today) && !pass.actualOut);
+                const entryExitLog = gatePasses.filter(pass => pass.status === "approved" && pass.actualOut);
+
+                animateValue(document.getElementById('security-total'), approvedPasses.length + entryExitLog.length);
+                animateValue(document.getElementById('security-out'), entryExitLog.filter(p => !p.actualIn).length);
+                animateValue(document.getElementById('security-returned'), entryExitLog.filter(p => p.actualIn).length);
+                animateValue(document.getElementById('security-overdue'), entryExitLog.filter(p => !p.actualIn && new Date() > new Date(p.inTime)).length);
+
+                approvedPassesTable.innerHTML = '';
+                 if(approvedPasses.length === 0) {
+                     approvedPassesTable.innerHTML = '<tr><td colspan="7" style="text-align:center; color: var(--gray-500);">No departures scheduled for today.</td></tr>';
+                }
+                approvedPasses.forEach((pass, index) => {
+                    const row = document.createElement('tr');
+                    row.style.animation = `slideUpFade 0.3s ease-out ${index * 0.05}s backwards`;
+                    row.innerHTML = `
+                        <td style="font-weight: 600;">${pass.passNo}</td>
+                        <td>${pass.studentName}</td>
+                        <td>${pass.department}</td>
+                        <td>${pass.rollNo}</td>
+                        <td>${formatDateTime(pass.outTime)}</td>
+                        <td>${formatDateTime(pass.inTime)}</td>
+                        <td class="action-buttons">
+                            <button class="action-btn btn-success" onclick="recordExit('${pass._id}', this)">
+                                <i class="fas fa-sign-out-alt"></i> Departure
+                            </button>
+                        </td>
+                    `;
+                    approvedPassesTable.appendChild(row);
+                });
+
+                entryExitLogTable.innerHTML = '';
+                 if(entryExitLog.length === 0) {
+                     entryExitLogTable.innerHTML = '<tr><td colspan="7" style="text-align:center; color: var(--gray-500);">No entry/exit logs yet.</td></tr>';
+                }
+                entryExitLog.forEach((pass, index) => {
+                    const row = document.createElement('tr');
+                    row.style.animation = `slideUpFade 0.3s ease-out ${index * 0.05}s backwards`;
+                    
+                    const formattedActualOut = pass.actualOut ? formatDateTime(pass.actualOut) : '-';
+                    const formattedActualIn = pass.actualIn ? formatDateTime(pass.actualIn) : '-';
+                    
+                    let statusHtml = `<span class="status" style="background:#fee2e2; color:var(--danger);">Outside</span>`;
+                    let actionBtn = `<button class="action-btn btn-warning" onclick="recordEntry('${pass._id}', this)"><i class="fas fa-sign-in-alt"></i> Record Return</button>`;
+
+                    if (pass.actualOut && pass.actualIn) {
+                        statusHtml = `<span class="status status-approved">Returned</span>`;
+                        actionBtn = '<span style="color: var(--gray-400); font-size: 0.9rem;"><i class="fas fa-check-circle"></i> Completed</span>';
+                    }
+
+                    row.innerHTML = `
+                        <td style="font-weight: 600;">${pass.passNo}</td>
+                        <td>${pass.studentName}</td>
+                        <td>${formatDateTime(pass.outTime)}</td>
+                        <td>${formatDateTime(pass.inTime)}</td>
+                        <td>${formattedActualOut}</td>
+                        <td>${formattedActualIn}</td>
+                        <td>
+                             <div style="display: flex; flex-direction: column; gap: 5px; align-items: center;">
+                                ${statusHtml}
+                                ${!pass.actualIn ? actionBtn : ''}
+                             </div>
+                        </td>
+                    `;
+                    entryExitLogTable.appendChild(row);
+                });
+            } catch (error) {
+                console.error("Load Security Error:", error);
+            }
+        }
+
+        // Helper to add loader to action buttons
+        async function handleAction(btn, actionFn) {
+             const originalHtml = btn.innerHTML;
+             btn.innerHTML = '<div class="loader" style="width: 15px; height: 15px; border-width: 2px;"></div>';
+             btn.disabled = true;
+             await actionFn();
+             // No need to restore button HRML as the table row will likely be removed/refreshed
+        }
+
+        async function approveGatePass(passId, btn) {
+            handleAction(btn, async () => {
+                await fetch(`${API_URL}/gatepasses/${passId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: "approved", approvedDate: new Date().toISOString().split('T')[0] })
+                });
+                loadAuthorityDashboard();
+                showAlert('Gate pass approved successfully!', 'success');
+            });
+        }
+
+        async function rejectGatePass(passId, btn) {
+             handleAction(btn, async () => {
+                await fetch(`${API_URL}/gatepasses/${passId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: "rejected", approvedDate: new Date().toISOString().split('T')[0] })
+                });
+                loadAuthorityDashboard();
+                showAlert('Gate pass rejected!', 'danger');
+             });
+        }
+
+        async function recordExit(passId, btn) {
+             handleAction(btn, async () => {
+                await fetch(`${API_URL}/gatepasses/${passId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ actualOut: new Date().toISOString() })
+                });
+                loadSecurityDashboard();
+                showAlert('Student departure recorded.', 'success');
+             });
+        }
+
+        async function recordEntry(passId, btn) {
+             handleAction(btn, async () => {
+                await fetch(`${API_URL}/gatepasses/${passId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ actualIn: new Date().toISOString() })
+                });
+                loadSecurityDashboard();
+                showAlert('Student return recorded.', 'success');
+             });
+        }
+        
+        function showAlert(message, type) {
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            const iconMap = { success: 'check-circle', danger: 'exclamation-circle', warning: 'exclamation-triangle' };
+            alert.innerHTML = `<i class="fas fa-${iconMap[type]}"></i> ${message}`;
+            
+            // Insert into the visible dashboard or the login section if logged out
+            let target = document.querySelector('.dashboard[style*="display: block"] .dashboard-content-wrapper');
+            if (!target) target = document.getElementById('login-section');
+
+            if (target) {
+                target.insertBefore(alert, target.firstChild);
+                setTimeout(() => {
+                    alert.style.opacity = '0';
+                    alert.style.transform = 'translateY(-10px)';
+                    alert.style.transition = 'all 0.3s ease';
+                    setTimeout(() => alert.remove(), 300);
+                }, 3000);
+            }
+        }
+    </script>
+</body>
+</html>
